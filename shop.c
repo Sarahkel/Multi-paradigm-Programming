@@ -63,7 +63,11 @@ void createAndStockShop()
 
     while ((read = getline(&line, &len, fp)) != -1) {
         // printf("Retrieved line of length %zu:\n", read);
-        printf("%s IS A LINE\n", line); 
+        // printf("%s IS A LINE\n", line); 
+        char* name = strtok(line, ",");
+        char* price = strtok(NULL, ",");
+        char* quantity = strtok(NULL, ",");
+        printf("NAME OF PRODUCT %s PRICE %s QUANTITY %s\n", name, price, quantity);
     }
 }
 
