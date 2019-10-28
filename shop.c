@@ -49,9 +49,8 @@ void printCustomer(struct Customer c)
     }
 };
 
-void createAndStockShop()
+struct Shop createAndStockShop()
 {
-    struct Shop shop = { 200 };
     FILE* fp;
     char* line = NULL;
     size_t len = 0;
@@ -61,14 +60,52 @@ void createAndStockShop()
     if (fp == NULL)
         exit(EXIT_FAILURE);
 
+    read = getline(&line, &len, fp);
+    double cashInShop = atof(line);
+    struct Shop shop = { cashInShop };
+
     while ((read = getline(&line, &len, fp)) != -1) {
         // printf("Retrieved line of length %zu:\n", read);
         // printf("%s IS A LINE\n", line); 
-        char* name = strtok(line, ",");
-        char* price = strtok(NULL, ",");
-        char* quantity = strtok(NULL, ",");
-        printf("NAME OF PRODUCT %s PRICE %s QUANTITY %s\n", name, price, quantity);
+        char* n = strtok(line, ",");
+        char* p = strtok(NULL, ",");
+        char* q = strtok(NULL, ",");
+        int quantity = atoi(q);
+        double price = atof(p);
+        char* name = malloc(sizeof(char) * 50);
+        strcpy( name, n );
+
+        struct Product product = { name, price };
+        struct ProductStock stockItem = { product, quantity };
+        shop.stock[shop.index++] = stockItem;
+        // printf("NAME OF PRODUCT %s PRICE %.2f QUANTITY %d\n", name, price, quantity);
     }
+
+    return shop;
+}
+
+void printShop(struct Shop s)
+{
+    printf("Shop has %.2f in cash\n\n", s.cash);
+    for (int i = 0; i < s.index; i++)
+    {
+        printProduct(s.stock[i].product);
+        printf("THE SHOP HAS %d of the above\n\n", s.stock[i].quantity);
+    }
+}
+
+double findProductPrice(struct Shop s, char* n)
+{
+    for (int i = 0; i < s.index; i++)
+    {
+        struct Product product = s.stock[i].product;
+        char* name = product.name;
+        if (strcmp(name,n) == 0 ){
+            return product.price;
+        }
+    }
+
+    return -1;
 }
 
 int main(void)
@@ -86,7 +123,10 @@ int main(void)
     // printCustomer(sarah);
     // printf("The shop has %d of the product %s\n", cokeStock.quantity, cokeStock.product.name);
 
-    createAndStockShop();
+    struct Shop shop = createAndStockShop();
+    printShop(shop);
+    double price = findProductPrice(shop, "Coke Can");
+    printf("Price is %.2f", price);
 
     return 0;
 }
