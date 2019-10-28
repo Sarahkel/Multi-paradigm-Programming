@@ -108,7 +108,15 @@ double findProductPrice(struct Shop s, char* n)
     return -1;
 }
 
-struct Customer readShoppingList()
+struct Shop fulfillorder(Customer c, shop s)
+{
+    // verify quantities are available
+    // verify customer has enough budget
+    // subtract / add transaction
+    // include appropriate error messages
+}
+
+struct Customer readShoppingList(struct Shop s)
 {
     FILE* fp;
     char* line = NULL;
@@ -125,28 +133,33 @@ struct Customer readShoppingList()
     char* nameCustomer = malloc(sizeof(char) * 50);
     strcpy( nameCustomer, nameC );
 //read budget
-    read = getline(&line, &len, fp);
+    // read = getline(&line, &len, fp);
     char* bC = strtok(NULL, ",");
     double budgetCustomer = atof(bC);
 
     struct Customer customer = { nameCustomer, budgetCustomer };
 
-    printf("The name of the customer is %s and their budget is %.2f", nameCustomer, budgetCustomer);
+    // printf("The name of the customer is %s and their budget is %.2f\n", nameCustomer, budgetCustomer);
 
-    // while ((read = getline(&line, &len, fp)) != -1) {
-    //     // printf("Retrieved line of length %zu:\n", read);
-    //     // printf("%s IS A LINE\n", line); 
-    //     char* n = strtok(line, ",");
-    //     char* q = strtok(NULL, ",");
-    //     int quantity = atoi(q);
-    //     char* name = malloc(sizeof(char) * 50);
-    //     strcpy( name, n );
+//read their shoppinglist 
+    while ((read = getline(&line, &len, fp)) != -1) {
+        char* n = strtok(line, ",");
+        char* q = strtok(NULL, ",");
+        int quantity = atoi(q);
+        char* name = malloc(sizeof(char) * 50);
+        strcpy( name, n );
 
-    //     struct Product product = { name, price };
-    //     struct ProductStock stockItem = { product, quantity };
-    //     shop.stock[shop.index++] = stockItem;
-    //     // printf("NAME OF PRODUCT %s PRICE %.2f QUANTITY %d\n", name, price, quantity);
-    // }
+        double price = findProductPrice(s, name);
+        struct Product Item = { name, price };
+        struct ProductStock listItem = { Item, quantity };
+        customer.shoppingList[customer.index++] = listItem;
+        // printf("Added Product %s Quantity %d price %.2f", name, quantity, price );
+
+
+        // struct ProductStock stockItem = { product, quantity };
+        // shop.stock[shop.index++] = stockItem;
+        // printf("NAME OF PRODUCT %s QUANTITY %d\n", name, quantity);
+    }
 
     return customer;
 }
@@ -166,13 +179,15 @@ int main(void)
     // printCustomer(sarah);
     // printf("The shop has %d of the product %s\n", cokeStock.quantity, cokeStock.product.name);
 
-    // struct Shop shop = createAndStockShop();
+    struct Shop shop = createAndStockShop();
     // printShop(shop);
-    // double price = findProductPrice(shop, "Coke Can");
+    // double price = findProductPrice(shop, "Tomato Sauce");
     // printf("Price is %.2f", price);
 
-    struct Customer customer = readShoppingList();
-    
+    struct Customer customer = readShoppingList(shop);
+    printCustomer(customer);
+
+
 
     return 0;
 }
