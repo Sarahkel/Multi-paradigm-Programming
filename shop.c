@@ -108,6 +108,49 @@ double findProductPrice(struct Shop s, char* n)
     return -1;
 }
 
+struct Customer readShoppingList()
+{
+    FILE* fp;
+    char* line = NULL;
+    size_t len = 0;
+    ssize_t read;
+
+    fp = fopen("customer.csv", "r");
+    if (fp == NULL)
+        exit(EXIT_FAILURE);
+
+//read name
+    read = getline(&line, &len, fp);
+    char* nameC = strtok(line, ",");
+    char* nameCustomer = malloc(sizeof(char) * 50);
+    strcpy( nameCustomer, nameC );
+//read budget
+    read = getline(&line, &len, fp);
+    char* bC = strtok(NULL, ",");
+    double budgetCustomer = atof(bC);
+
+    struct Customer customer = { nameCustomer, budgetCustomer };
+
+    printf("The name of the customer is %s and their budget is %.2f", nameCustomer, budgetCustomer);
+
+    // while ((read = getline(&line, &len, fp)) != -1) {
+    //     // printf("Retrieved line of length %zu:\n", read);
+    //     // printf("%s IS A LINE\n", line); 
+    //     char* n = strtok(line, ",");
+    //     char* q = strtok(NULL, ",");
+    //     int quantity = atoi(q);
+    //     char* name = malloc(sizeof(char) * 50);
+    //     strcpy( name, n );
+
+    //     struct Product product = { name, price };
+    //     struct ProductStock stockItem = { product, quantity };
+    //     shop.stock[shop.index++] = stockItem;
+    //     // printf("NAME OF PRODUCT %s PRICE %.2f QUANTITY %d\n", name, price, quantity);
+    // }
+
+    return customer;
+}
+
 int main(void)
 {
     // struct Customer sarah = { "Sarah", 100.0 };
@@ -123,10 +166,13 @@ int main(void)
     // printCustomer(sarah);
     // printf("The shop has %d of the product %s\n", cokeStock.quantity, cokeStock.product.name);
 
-    struct Shop shop = createAndStockShop();
-    printShop(shop);
-    double price = findProductPrice(shop, "Coke Can");
-    printf("Price is %.2f", price);
+    // struct Shop shop = createAndStockShop();
+    // printShop(shop);
+    // double price = findProductPrice(shop, "Coke Can");
+    // printf("Price is %.2f", price);
+
+    struct Customer customer = readShoppingList();
+    
 
     return 0;
 }
