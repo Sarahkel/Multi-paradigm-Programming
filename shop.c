@@ -31,8 +31,8 @@ struct Shop {
 
 void printProduct(struct Product p)
 {
-    printf("PRODUCT NAME: %s \nPRODUCT PRICE: %.2f\n", p.name, p.price);   
-    printf("----------------\n");
+    // printf("PRODUCT NAME: %s \nPRODUCT PRICE: %.2f\n", p.name, p.price);   
+    //printf("----------------\n");
 };
 
 void printCustomer(struct Customer c)
@@ -42,10 +42,10 @@ void printCustomer(struct Customer c)
     for(int i = 0; i < c.index; i++)
     {
         printProduct(c.shoppingList[i].product);
-        printf("%s ORDERS %d of ABOVE PRODUCT\n", c.name, c.shoppingList[i].quantity);
+        // printf("%s ORDERS %d of ABOVE PRODUCT\n", c.name, c.shoppingList[i].quantity);
         double cost = c.shoppingList[i].quantity * c.shoppingList[i].product.price;
-        printf("The cost to %s will be E%.2f\n", c.name, cost);
-        printf("----------------\n");
+        // printf("The cost to %s will be E%.2f\n", c.name, cost);
+        // printf("----------------\n");
     }
 };
 
@@ -108,12 +108,69 @@ double findProductPrice(struct Shop s, char* n)
     return -1;
 }
 
-struct Shop fulfillorder(Customer c, shop s)
+//struct Shop fulfillOrder(struct* Customer c, struct* Shop s)
+void fulfillOrder(struct Customer* c, struct Shop* s)
 {
+
+    // starting cash
+    // double cashInShop = s.cash;
+    // struct Shop shopAfter = { cashInShop };
+
+
     // verify quantities are available
-    // verify customer has enough budget
-    // subtract / add transaction
+    // loop through customer shoppinglist
+    for (int i = 0; i < c->index; i++)
+
+    {
+        printf("\n\n THE CUSTOMER %s WANTS %d of %s priced at %.2f each \n", c->name, c->shoppingList[i].quantity, c->shoppingList[i].product.name, c->shoppingList[i].product.price);
+
+        // check the ShopStock by looping through shopstock and matching it with current item on shoppinglist
+        for (int n = 0; n < s->index; n++)
+        {
+            // printProduct(s.stock[n].product);
+            
+            if (strcmp(s->stock[n].product.name, c->shoppingList[i].product.name) == 0)
+            {
+                if (s->stock[n].quantity >= c->shoppingList[i].quantity) {
+                    printf("The shop has enough of said product and will fulfill the order\n");
+                    double cost = c->shoppingList[i].quantity * c->shoppingList[i].product.price;
+                    // printf("Cost of item on shoppinglist is %.2f \n", cost);
+
+                    // verify customer has enough budget
+                    if (c->budget > cost) {
+                        printf("Customers budget is %.2f and customer can aford cost %.2f\n", c->budget, cost);
+                        c->budget -= cost;
+                        printf("Customers budget has reduced to %.2f \n", c->budget);
+                    }
+
+                    //cashInShop += cost;
+                    // printf("CashinShop is %.2f \n", cashInShop);
+                    //struct Shop shopAfter = { cashInShop };
+                    //printf("THE SHOP'S CASH has increased to %.2f \n", shopAfter.cash);
+                    //order is fulfilled, continue with next shoppingList item
+
+                    s->cash += cost;
+                    printf("THE SHOP'S CASH has increased to %.2f \n", s->cash);
+                    // diminish the productstock accordingly
+                    //s.stock[n].product.name
+
+                    break;                   
+                }
+                else {
+                    printf("The shop DOES NOT HAVE enough of said product \n");
+                }
+            }
+
+            // printf("THE SHOP HAS %d of the above\n\n", s.stock[i].quantity);
+        }
+
+    }
+
     // include appropriate error messages
+
+    //return shopAfter;
+
+    //return s,c;
 }
 
 struct Customer readShoppingList(struct Shop s)
@@ -155,10 +212,6 @@ struct Customer readShoppingList(struct Shop s)
         customer.shoppingList[customer.index++] = listItem;
         // printf("Added Product %s Quantity %d price %.2f", name, quantity, price );
 
-
-        // struct ProductStock stockItem = { product, quantity };
-        // shop.stock[shop.index++] = stockItem;
-        // printf("NAME OF PRODUCT %s QUANTITY %d\n", name, quantity);
     }
 
     return customer;
@@ -184,10 +237,19 @@ int main(void)
     // double price = findProductPrice(shop, "Tomato Sauce");
     // printf("Price is %.2f", price);
 
+    
+
     struct Customer customer = readShoppingList(shop);
+    // printCustomer(customer);
+
+    // struct Shop shopAfter = fulfillOrder(customer, shop);
+    // printShop(shopAfter);
+
+    struct Customer* CustomerP = &customer;
+    struct Shop* ShopP = &shop;
+
+    fulfillOrder(CustomerP,ShopP);
+    printShop(shop);
     printCustomer(customer);
-
-
-
     return 0;
 }
