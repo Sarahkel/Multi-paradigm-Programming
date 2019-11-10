@@ -241,6 +241,8 @@ struct Customer recordOrder(struct Shop s)
     fgetc(stdin);
     fgets(nameC, sizeof(nameC), stdin);
     nameC[strcspn(nameC, "\n")] = 0;
+    char* nameCustomer = malloc(sizeof(char) * 50);
+    strcpy( nameCustomer, nameC );
 
     //get budget
     printf("What is your budget?\n");
@@ -250,18 +252,20 @@ struct Customer recordOrder(struct Shop s)
     //bC[strcspn(bC, "\n")] = 0;
     double budgetCustomer = atof(bC);
 
-    struct Customer customer = { nameC, budgetCustomer };
-    printf("The name of the customer is %s and their budget is %.2f\n", nameC, budgetCustomer);
+    struct Customer customer = { nameCustomer, budgetCustomer };
+    printf("The name of the customer is %s and their budget is %.2f\n", nameCustomer, budgetCustomer);
 
 
     int i=0;
-    while (i < 3) {
+    while (i < 2) {
 
         //get order
         printf("What would you like?\n");
         char productName[20];
         fgets(productName, sizeof(productName), stdin);
         productName[strcspn(productName, "\n")] = 0;
+        char* nameP = malloc(sizeof(char) * 50);
+        strcpy( nameP, productName );
 
         printf("How many?\n");
         char pN[20];
@@ -269,11 +273,11 @@ struct Customer recordOrder(struct Shop s)
         int productNumber = atoi(pN);
 
 
-        double price = findProductPrice(s, productName);
-        struct Product Item = { productName, price };
+        double price = findProductPrice(s, nameP);
+        struct Product Item = { nameP, price };
         struct ProductStock listItem = { Item, productNumber };
         customer.shoppingList[customer.index++] = listItem;
-        printf("Added Product %s Quantity %d price %.2f\n", productName, productNumber, price );
+        printf("Added Product %s Quantity %d price %.2f\n", nameP, productNumber, price );
         i++;
         }
 
