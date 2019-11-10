@@ -39,10 +39,11 @@ void printCustomer(struct Customer c)
 {
     printf("CUSTOMER NAME: %s \nCUSTOMER BUDGET: %.2f\n", c.name, c.budget);   
     printf("----------------\n");
+
     for(int i = 0; i < c.index; i++)
     {
-        printProduct(c.shoppingList[i].product);
-        // printf("%s ORDERS %d of ABOVE PRODUCT\n", c.name, c.shoppingList[i].quantity);
+        //printProduct(c.shoppingList[i].product);
+        printf("%s ORDERS %d of %s\n", c.name, c.shoppingList[i].quantity, c.shoppingList[i].product.name);
         double cost = c.shoppingList[i].quantity * c.shoppingList[i].product.price;
         // printf("The cost to %s will be E%.2f\n", c.name, cost);
         // printf("----------------\n");
@@ -90,7 +91,7 @@ void printShop(struct Shop s)
     for (int i = 0; i < s.index; i++)
     {
         printProduct(s.stock[i].product);
-        printf("THE SHOP HAS %d of the above\n\n", s.stock[i].quantity);
+        //printf("THE SHOP HAS %d of the above\n\n", s.stock[i].quantity);
     }
 }
 
@@ -98,9 +99,11 @@ double findProductPrice(struct Shop s, char* n)
 {
     for (int i = 0; i < s.index; i++)
     {
+
         struct Product product = s.stock[i].product;
         char* name = product.name;
-        if (strcmp(name,n) == 0 ){
+        //contains
+        if (strstr(n,name) != NULL ){
             return product.price;
         }
     }
@@ -108,26 +111,48 @@ double findProductPrice(struct Shop s, char* n)
     return -1;
 }
 
+int requestMode()
+{
+
+    printf("Please choose 1 or 2\n");
+    printf("1. I have submitted my order in advance. Please process my .csv\n");
+    printf("2. I would like to order now\n");
+    char mode[2];
+    fgets(mode, sizeof(mode), stdin);
+    // https://stackoverflow.com/questions/53900369/fgets-keeps-getting-skipped-before-entering-loop
+    mode[strcspn(mode, "\n")] = 0;
+
+    
+    if (strcmp(mode,"1") == 0) {
+        printf("You entered 1");
+        int modeI = atoi(mode);
+        return modeI;
+    }
+    else if (strcmp(mode,"2") == 0) {
+        printf("You entered 2\n");
+        int modeI = atoi(mode);
+        return modeI;
+    }
+    else {
+        printf("Sorry, we don't do that here. Please come again some other time \n\n");
+        int modeI = atoi(mode);
+        return modeI;        
+    }
+}
+
 //struct Shop fulfillOrder(struct* Customer c, struct* Shop s)
 void fulfillOrder(struct Customer* c, struct Shop* s)
 {
 
-    // starting cash
-    // double cashInShop = s.cash;
-    // struct Shop shopAfter = { cashInShop };
-
-
-    // verify quantities are available
-    // loop through customer shoppinglist
     for (int i = 0; i < c->index; i++)
 
     {
-        printf("\n\n THE CUSTOMER %s WANTS %d of %s priced at %.2f each \n", c->name, c->shoppingList[i].quantity, c->shoppingList[i].product.name, c->shoppingList[i].product.price);
+        //printf("\n\n THE CUSTOMER %s WANTS %d of %s priced at %.2f each \n", c->name, c->shoppingList[i].quantity, c->shoppingList[i].product.name, c->shoppingList[i].product.price);
 
         // check the ShopStock by looping through shopstock and matching it with current item on shoppinglist
         for (int n = 0; n < s->index; n++)
         {
-            // printProduct(s.stock[n].product);
+            printProduct(s->stock[n].product);
             
             if (strcmp(s->stock[n].product.name, c->shoppingList[i].product.name) == 0)
             {
@@ -143,12 +168,6 @@ void fulfillOrder(struct Customer* c, struct Shop* s)
                         printf("Customers budget has reduced to %.2f \n", c->budget);
                     }
 
-                    //cashInShop += cost;
-                    // printf("CashinShop is %.2f \n", cashInShop);
-                    //struct Shop shopAfter = { cashInShop };
-                    //printf("THE SHOP'S CASH has increased to %.2f \n", shopAfter.cash);
-                    //order is fulfilled, continue with next shoppingList item
-
                     s->cash += cost;
                     printf("THE SHOP'S CASH has increased to %.2f \n", s->cash);
                     // diminish the productstock accordingly
@@ -160,17 +179,12 @@ void fulfillOrder(struct Customer* c, struct Shop* s)
                     printf("The shop DOES NOT HAVE enough of said product \n");
                 }
             }
-
-            // printf("THE SHOP HAS %d of the above\n\n", s.stock[i].quantity);
         }
 
     }
 
     // include appropriate error messages
 
-    //return shopAfter;
-
-    //return s,c;
 }
 
 struct Customer readShoppingList(struct Shop s)
@@ -189,7 +203,7 @@ struct Customer readShoppingList(struct Shop s)
     char* nameC = strtok(line, ",");
     char* nameCustomer = malloc(sizeof(char) * 50);
     strcpy( nameCustomer, nameC );
-//read budget
+    //read budget
     // read = getline(&line, &len, fp);
     char* bC = strtok(NULL, ",");
     double budgetCustomer = atof(bC);
@@ -198,7 +212,7 @@ struct Customer readShoppingList(struct Shop s)
 
     // printf("The name of the customer is %s and their budget is %.2f\n", nameCustomer, budgetCustomer);
 
-//read their shoppinglist 
+    //read their shoppinglist 
     while ((read = getline(&line, &len, fp)) != -1) {
         char* n = strtok(line, ",");
         char* q = strtok(NULL, ",");
@@ -213,6 +227,55 @@ struct Customer readShoppingList(struct Shop s)
         // printf("Added Product %s Quantity %d price %.2f", name, quantity, price );
 
     }
+
+    return customer;
+}
+
+struct Customer recordOrder(struct Shop s)
+{
+
+    //get name
+    printf("What is your name?\n");
+    char nameC[20];
+    //https://www.gamedev.net/forums/topic/589620-why-is-my-program-skipping-fgets/
+    fgetc(stdin);
+    fgets(nameC, sizeof(nameC), stdin);
+    nameC[strcspn(nameC, "\n")] = 0;
+
+    //get budget
+    printf("What is your budget?\n");
+    char bC[20];
+    fgets(bC, sizeof(bC), stdin);
+    // https://stackoverflow.com/questions/53900369/fgets-keeps-getting-skipped-before-entering-loop
+    //bC[strcspn(bC, "\n")] = 0;
+    double budgetCustomer = atof(bC);
+
+    struct Customer customer = { nameC, budgetCustomer };
+    printf("The name of the customer is %s and their budget is %.2f\n", nameC, budgetCustomer);
+
+
+    int i=0;
+    while (i < 3) {
+
+        //get order
+        printf("What would you like?\n");
+        char productName[20];
+        fgets(productName, sizeof(productName), stdin);
+        productName[strcspn(productName, "\n")] = 0;
+
+        printf("How many?\n");
+        char pN[20];
+        fgets(pN, sizeof(pN), stdin);
+        int productNumber = atoi(pN);
+
+
+        double price = findProductPrice(s, productName);
+        struct Product Item = { productName, price };
+        struct ProductStock listItem = { Item, productNumber };
+        customer.shoppingList[customer.index++] = listItem;
+        printf("Added Product %s Quantity %d price %.2f\n", productName, productNumber, price );
+        i++;
+        }
 
     return customer;
 }
@@ -237,19 +300,38 @@ int main(void)
     // double price = findProductPrice(shop, "Tomato Sauce");
     // printf("Price is %.2f", price);
 
+    int mode = requestMode();
+    
+    if (mode == 1){
+        struct Customer customer = readShoppingList(shop);
+        struct Customer* CustomerCSV = &customer;
+        struct Shop* ShopP = &shop;
+
+        fulfillOrder(CustomerCSV,ShopP);
+        printShop(shop);
+        printCustomer(customer);
+    }
+    else if (mode == 2){
+        struct Customer customerL = recordOrder(shop);
+        printCustomer(customerL);
+        struct Customer* CustomerLive = &customerL;
+        struct Shop* ShopP = &shop;
+
+        fulfillOrder(CustomerLive, ShopP);
+        printShop(shop);
+        printCustomer(customerL);
+    }
+    else
+    {
+        
+    }
     
 
-    struct Customer customer = readShoppingList(shop);
     // printCustomer(customer);
 
     // struct Shop shopAfter = fulfillOrder(customer, shop);
     // printShop(shopAfter);
 
-    struct Customer* CustomerP = &customer;
-    struct Shop* ShopP = &shop;
 
-    fulfillOrder(CustomerP,ShopP);
-    printShop(shop);
-    printCustomer(customer);
-    return 0;
+    // return 0;
 }
