@@ -330,6 +330,7 @@ int main(void)
     // asks user in which mode they want to operate
     int mode = requestMode();
     
+    //Read from CSV
     if (mode == 1){
         struct Customer customer = readShoppingList(shop);
         //create pointers
@@ -343,6 +344,7 @@ int main(void)
         printShop(shop);
         printCustomer(customer);
     }
+    //Live Mode
     else if (mode == 2){
         struct Customer customerL = recordOrder(shop);
         printCustomer(customerL);
